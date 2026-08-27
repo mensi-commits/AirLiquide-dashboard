@@ -1,0 +1,37 @@
+logistic team bring the raw material , and the factory produce lots ( means a set of bottles) 
+lots has parameters ( raw materials , day , equipe ) if some of these parameters change we pass to new lots
+
+
+flow : logistic team bring raw material
+| Gaz                                       | Type              | Code produit | Durée de vie                 |
+| ----------------------------------------- | ----------------- | ------------ | ---------------------------- |
+| O2 médicinal liquide                      | RM (Raw Material) | O2           | Date de fabrication + 3 mois |
+| Protoxyde d'azote liquide                 | RM (Raw Material) | N₂O          | Date de fabrication + 3 mois |
+| Azote pharmaceutique liquide              | RM (Raw Material) | N₂           | Date de fabrication + 3 mois |
+| Dioxyde de carbone pharmaceutique liquide | RM (Raw Material) | CO₂          | Date de fabrication + 3 mois |
+
+the raw material stay in quarantine then the laboratory test it 
+and either confirm it or reject it after analysing it (it should be conforme to be confirmed) 
+then it goes to production where they make bottles of these final products :
+
+| Gaz                                           | Type               | Code produit | Durée de vie                |
+| --------------------------------------------- | ------------------ | ------------ | --------------------------- |
+| O2 médicinal conditionné                      | FP (Final Product) | O2           | Date de fabrication + 5 ans |
+| MEOPA                                         | FP (Final Product) | MEOPA        | Date de fabrication + 2 ans |
+| Protoxyde d'azote conditionné                 | FP (Final Product) | N₂O          | Date de fabrication + 3 ans |
+| Air respirable conditionné                    | FP (Final Product) | AR           | Date de fabrication + 5 ans |
+| Azote pharmaceutique conditionné              | FP (Final Product) | N₂           | Date de fabrication + 5 ans |
+| Dioxyde de carbone pharmaceutique conditionné | FP (Final Product) | CO₂          | Date de fabrication + 5 ans |
+
+and then it stay in quarantine the laboratory test it again and either confirm it or reject it , if confirmed it goes to distribution 
+
+
+
+there is one exception for O2 , O2 when bringed by logistic team it can follow our erlier logic which is named 
+conditionnement or goes to distribution , in distribution they put O2 in citerne ( 3C, 4C, 7C ) 
+and then labo test it and if good it  goes to distribution , 
+
+each raw material has a code in this format : GAZ-DATE-conditionnement O2-26-07-08-01
+each product has a code also in this format : GAZ-DATE-conditionnement-LOTSNUM O2-26-07-08-01-01
+
+in O2 citerne distribution hte code goes like this : O2-DATE-3C/4C/7C
