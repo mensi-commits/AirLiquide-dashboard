@@ -6,6 +6,7 @@ import {
     Calendar, Download, ArrowRight, Box, CheckCircle2, HardHat,
     Wind, Droplets, Cloud, Zap, HeartPulse, ShieldCheck, Shield, Fan, X, LogOut,
 } from "lucide-react";
+import * as XLSX from "xlsx"; // <-- ADDED: Library for Excel export
 
 import {
     PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis,
@@ -61,7 +62,7 @@ function LogisticsView({ batches, setBatches, selectedGas }: { batches: any[], s
             method: "PATCH",
             headers,
             body: JSON.stringify({
-                nextParty: "citerne_lab", // Direct to lab, skipping admin holding state
+                nextParty: "citerne_lab",
                 newStatus: "pending",
                 type: "CITERNE",
                 citerneType: "3C"
@@ -476,23 +477,103 @@ function ReportCard({ title, description, icon: Icon, color, onClick }: any) {
 function ReportsView({ batches }: { batches: any[] }) {
     const { t } = useLanguage();
     const [reportType, setReportType] = useState("production");
-    const generateCSV = () => {
-        let csvContent = "data:text/csv;charset=utf-8,Lot ID,Gas Type,Type,Party,Status,Quantity,Date\n";
-        batches.forEach(b => { csvContent += `${b.lotId},${b.gasId},${b.type},${b.party},${b.status},${b.quantity},${new Date(b.date).toLocaleDateString()}\n`; });
+    const [showExportMenu, setShowExportMenu] = useState(false);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (showExportMenu && !(event.target as Element).closest('.export-dropdown')) {
+                setShowExportMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [showExportMenu]);
+
+    const exportToCSV = () => {
+        const BOM = "\uFEFF";
+        const headers = ["Lot ID", "Gas Type", "Type", "Party", "Status", "Quantity", "Date"];
+        let csvContent = "data:text/csv;charset=utf-8," + BOM + headers.map(h => `"${h}"`).join(",") + "\n";
+
+        batches.forEach(b => {
+            const row = [
+                b.lotId,
+                b.gasId,
+                b.type,
+                b.party,
+                b.status,
+                b.quantity,
+                new Date(b.date).toLocaleDateString()
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(",");
+            csvContent += row + "\n";
+        });
+
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", `report_${reportType}_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setShowExportMenu(false);
+    };
+
+    const exportToExcel = () => {
+        const data = batches.map(b => ({
+            "Lot ID": b.lotId,
+            "Gas Type": b.gasId,
+            "Type": b.type,
+            "Party": b.party,
+            "Status": b.status,
+            "Quantity": b.quantity,
+            "Date": new Date(b.date).toLocaleDateString()
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `report_${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        setShowExportMenu(false);
     };
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-slate-900">{t("reports_analytics")}</h2>
-                <button onClick={generateCSV} className="inline-flex items-center gap-2 px-4 py-2 bg-[#00205B] text-white text-sm font-semibold rounded-lg hover:bg-[#001a4a] transition">
-                    <Download className="h-4 w-4" /> {t("export_data_csv")}
-                </button>
+
+                {/* Export Dropdown */}
+                <div className="relative export-dropdown">
+                    <button
+                        onClick={() => setShowExportMenu(!showExportMenu)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#00205B] text-white text-sm font-semibold rounded-lg hover:bg-[#001a4a] transition"
+                    >
+                        <Download className="h-4 w-4" /> {t("export_data")}
+                    </button>
+
+                    {showExportMenu && (
+                        <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                            <button
+                                onClick={exportToExcel}
+                                className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                            >
+                                <div className="w-8 h-8 rounded bg-green-100 text-green-700 flex items-center justify-center font-bold text-xs">XLS</div>
+                                <div>
+                                    <div className="font-semibold">{t("excel_format")}</div>
+                                </div>
+                            </button>
+                            <div className="border-t border-slate-100"></div>
+                            <button
+                                onClick={exportToCSV}
+                                className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                            >
+                                <div className="w-8 h-8 rounded bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">CSV</div>
+                                <div>
+                                    <div className="font-semibold">{t("google_sheets_format")}</div>
+                                </div>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <ReportCard title={t("production_summary")} description={t("production_summary_desc")} icon={Cog} color="bg-purple-50 text-purple-600" onClick={() => setReportType("production")} />
