@@ -4,9 +4,7 @@ citerne admin check not necessary.(done)
 
 batch number only admin can change not all teams. (done)
 
-date fabrication & expiray date : add.
-
-link shipping with FP LAB.
+date fabrication & expiray date : add. (done)
 
 export google sheet.(done)
 
