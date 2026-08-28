@@ -1,0 +1,53 @@
+export const admin = {
+  en: {
+    dashboard: "Dashboard", overview_today: "Overview of today's operations", search_placeholder: "Search batch, material, order…",
+    system_calendar: "System Calendar", switch_department: "Switch Department", current: "Current", log_out: "Log Out",
+    admin_dashboard: "Admin Dashboard", logistics: "Logistics", laboratory: "Laboratory", production: "Production", distribution: "Distribution",
+    workflow: "Workflow", pages: "Pages", safety_priority: "Safety is our priority", safety_subtitle: "Work safely today for a better tomorrow",
+    selected_gas: "Selected Gas", reports_analytics: "Reports & Analytics", export_data_csv: "Export Data (CSV)",
+    production_summary: "Production Summary", production_summary_desc: "Overview of all FP lots produced, grouped by gas and equipe.",
+    qc_rejections: "QC Rejections", qc_rejections_desc: "Detailed log of all batches rejected during RM or FP quarantine.",
+    logistics_intake_report: "Logistics Intake", logistics_intake_report_desc: "Raw materials received, supplier performance, and quarantine times.",
+    preview_data: "Preview", gas: "Gas", top_materials: "Top Materials", top_suppliers: "Top Suppliers", this_month: "This Month",
+    weekly_overview: "Weekly Overview", last_7_days: "Last 7 Days", batch_status: "Batch Status", total_batches: "Total Batches",
+    overall_progress: "Overall Progress", recent_activity: "Recent Activity", view_all: "View All", no_recent_activity: "No recent activity recorded",
+    production_flow: "Production Flow", rm_received: "RM\nReceived", rm_quarantine: "RM in\nQuarantine", rm_approved: "RM\nApproved",
+    fp_quarantine: "FP in\nQuarantine", ready_shipping: "Ready for\nShipping", o2_citerne_process: "O₂ Citerne\nProcess",
+    rejected_batches: "Rejected\nBatches", rm_received_step: "RM\nReceived", rm_quarantine_step: "RM\nQuarantine",
+    in_production: "In\nProduction", fp_quarantine_step: "FP\nQuarantine", ready_to_ship_step: "Ready to\nShip", delivered: "Delivered", moved: "Moved"
+  },
+  fr: {
+    dashboard: "Tableau de bord", overview_today: "Aperçu des opérations d'aujourd'hui", search_placeholder: "Rechercher un lot, une matière, une commande…",
+    system_calendar: "Calendrier du système", switch_department: "Changer de département", current: "Actuel", log_out: "Déconnexion",
+    admin_dashboard: "Tableau de bord admin", logistics: "Logistique", laboratory: "Laboratoire", production: "Production", distribution: "Distribution",
+    workflow: "Flux de travail", pages: "Pages", safety_priority: "La sécurité est notre priorité", safety_subtitle: "Travaillez en sécurité aujourd'hui pour un meilleur demain",
+    selected_gas: "Gaz sélectionné", reports_analytics: "Rapports et analyses", export_data_csv: "Exporter les données (CSV)",
+    production_summary: "Résumé de la production", production_summary_desc: "Aperçu de tous les lots de PF produits, regroupés par gaz et équipe.",
+    qc_rejections: "Rejets QC", qc_rejections_desc: "Journal détaillé de tous les lots rejetés lors de la quarantaine MP ou PF.",
+    logistics_intake_report: "Réception logistique", logistics_intake_report_desc: "Matières premières reçues, performance des fournisseurs et temps de quarantaine.",
+    preview_data: "Aperçu", gas: "Gaz", top_materials: "Meilleures matières", top_suppliers: "Meilleurs fournisseurs", this_month: "Ce mois",
+    weekly_overview: "Aperçu hebdomadaire", last_7_days: "7 derniers jours", batch_status: "Statut des lots", total_batches: "Total des lots",
+    overall_progress: "Progression globale", recent_activity: "Activité récente", view_all: "Voir tout", no_recent_activity: "Aucune activité récente enregistrée",
+    production_flow: "Flux de production", rm_received: "MP\nReçues", rm_quarantine: "MP en\nQuarantaine", rm_approved: "MP\nApprouvées",
+    fp_quarantine: "PF en\nQuarantaine", ready_shipping: "Prêt pour\nl'expédition", o2_citerne_process: "Processus\nCiterne O₂",
+    rejected_batches: "Lots\nRejetés", rm_received_step: "MP\nReçues", rm_quarantine_step: "MP en\nQuarantaine",
+    in_production: "En\nProduction", fp_quarantine_step: "PF en\nQuarantaine", ready_to_ship_step: "Prêt à\nExpédier", delivered: "Livré", moved: "Déplacé"
+  },
+  ar: {
+    dashboard: "لوحة القيادة", overview_today: "نظرة عامة على عمليات اليوم", search_placeholder: "البحث عن دفعة، مادة، طلب…",
+    system_calendar: "تقويم النظام", switch_department: "تبديل القسم", current: "حالي", log_out: "تسجيل الخروج",
+    admin_dashboard: "لوحة قيادة المسؤول", logistics: "اللوجستيات", laboratory: "المختبر", production: "الإنتاج", distribution: "التوزيع",
+    workflow: "سير العمل", pages: "الصفحات", safety_priority: "السلامة هي أولويتنا", safety_subtitle: "اعمل بأمان اليوم من أجل غد أفضل",
+    selected_gas: "الغاز المحدد", reports_analytics: "التقارير والتحليلات", export_data_csv: "تصدير البيانات (CSV)",
+    production_summary: "ملخص الإنتاج", production_summary_desc: "نظرة عامة على جميع دفعات المنتج النهائي المنتجة، مجمعة حسب الغاز والفريق.",
+    qc_rejections: "رفض مراقبة الجودة", qc_rejections_desc: "سجل مفصل لجميع الدفعات المرفوضة أثناء حجر المواد الخام أو المنتج النهائي.",
+    logistics_intake_report: "استلام اللوجستيات", logistics_intake_report_desc: "المواد الخام المستلمة، أداء الموردين، وأوقات الحجر الصحي.",
+    preview_data: "معاينة", gas: "غاز", top_materials: "أفضل المواد", top_suppliers: "أفضل الموردين", this_month: "هذا الشهر",
+    weekly_overview: "نظرة عامة أسبوعية", last_7_days: "آخر 7 أيام", batch_status: "حالة الدفعة", total_batches: "إجمالي الدفعات",
+    overall_progress: "التقدم العام", recent_activity: "النشاط الأخير", view_all: "عرض الكل", no_recent_activity: "لا يوجد نشاط مسجل مؤخراً",
+    production_flow: "تدفق الإنتاج", rm_received: "مواد خام\nمستلمة", rm_quarantine: "مواد خام\nفي الحجر", rm_approved: "مواد خام\nمعتمدة",
+    fp_quarantine: "منتج نهائي\nفي الحجر", ready_shipping: "جاهز\nللشحن", o2_citerne_process: "عملية\nصهريج O₂",
+    rejected_batches: "دفعات\nمرفوضة", rm_received_step: "مواد خام\nمستلمة", rm_quarantine_step: "مواد خام\nفي الحجر",
+    in_production: "في\nالإنتاج", fp_quarantine_step: "منتج نهائي\nفي الحجر", ready_to_ship_step: "جاهز\nللشحن", delivered: "تم التسليم", moved: "تم النقل"
+  }
+};

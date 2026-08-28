@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
-    Calendar as CalendarIcon,
-    ChevronLeft,
-    ChevronRight,
-    Download,
-    Filter,
-    CheckCircle2,
-    Clock,
-    AlertCircle,
-    Package,
-    FlaskConical,
-    Factory,
-    Droplet,
-    Truck,
-    Warehouse,
-    AlertTriangle,
-    Search,
-    Bell,
-    Users,
-    FileText,
-    X,
+    Calendar as CalendarIcon, ChevronLeft, ChevronRight, Download, Filter,
+    CheckCircle2, Clock, AlertCircle, Package, FlaskConical, Factory,
+    Droplet, Truck, Warehouse, AlertTriangle, Search, Bell, Users, FileText, X,
 } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage"; // Adjust path if needed
 
-// Event types with colors and icons
 const EVENT_TYPES: Record<string, { color: string; icon: React.ElementType; category: string }> = {
     "Batch Approved": { color: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: CheckCircle2, category: "quality" },
     "Material Received": { color: "bg-blue-50 text-blue-700 border-blue-200", icon: Package, category: "material" },
@@ -66,6 +49,7 @@ interface Activity {
 }
 
 export default function SystemCalendar() {
+    const { t, lang } = useLanguage();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
@@ -73,7 +57,6 @@ export default function SystemCalendar() {
     const [activities, setActivities] = useState<Activity[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // 1. Fetch real activities from backend batch history
     useEffect(() => {
         const fetchActivities = async () => {
             setIsLoading(true);
@@ -112,7 +95,6 @@ export default function SystemCalendar() {
                         }
                     });
 
-                    // Sort by date descending
                     mappedActivities.sort((a, b) => b.date.getTime() - a.date.getTime());
                     setActivities(mappedActivities);
                 }
@@ -193,8 +175,6 @@ export default function SystemCalendar() {
         (a, b) => b.date.getTime() - a.date.getTime()
     );
     const stats = getDailyStats(selectedDate);
-
-    // Get user info from localStorage
     const user = JSON.parse(localStorage.getItem("user") || '{"fullName": "Admin", "role": "admin"}');
 
     if (isLoading) {
@@ -202,14 +182,14 @@ export default function SystemCalendar() {
             <div className="flex h-screen items-center justify-center bg-slate-50">
                 <div className="flex flex-col items-center gap-3 text-slate-500">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-                    <span className="text-sm font-medium">Loading calendar data...</span>
+                    <span className="text-sm font-medium">{t("loading_calendar_data")}</span>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-slate-50 flex flex-col" dir={lang === "ar" ? "rtl" : "ltr"}>
             {/* Header */}
             <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
                 <div className="flex items-center gap-3">
@@ -217,8 +197,8 @@ export default function SystemCalendar() {
                         AL
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-slate-900">System Activity Calendar</h1>
-                        <p className="text-xs text-slate-500">Track all operations, events and changes across the system</p>
+                        <h1 className="text-lg font-bold text-slate-900">{t("system_activity_calendar")}</h1>
+                        <p className="text-xs text-slate-500">{t("track_all_operations")}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -226,7 +206,7 @@ export default function SystemCalendar() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search batch, sample, material..."
+                            placeholder={t("search_batch_sample")}
                             className="h-10 w-72 rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm focus:bg-white focus:border-blue-600 focus:outline-none"
                         />
                     </div>
@@ -248,7 +228,7 @@ export default function SystemCalendar() {
                 </div>
             </header>
 
-            {/* Main Content (No Left Sidebar) */}
+            {/* Main Content */}
             <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
@@ -262,7 +242,7 @@ export default function SystemCalendar() {
                             onClick={() => { setCurrentDate(new Date()); setSelectedDate(new Date()); }}
                             className="h-8 px-4 rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50"
                         >
-                            Today
+                            {t("today")}
                         </button>
                         <button
                             onClick={() => navigateMonth("next")}
@@ -271,7 +251,7 @@ export default function SystemCalendar() {
                             <ChevronRight className="h-4 w-4" />
                         </button>
                         <h2 className="text-lg font-semibold text-slate-900 ml-4">
-                            {currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                            {currentDate.toLocaleDateString(lang === "ar" ? "ar-EG" : lang === "fr" ? "fr-FR" : "en-US", { month: "long", year: "numeric" })}
                         </h2>
                     </div>
 
@@ -286,17 +266,17 @@ export default function SystemCalendar() {
                                         : "text-slate-600 hover:bg-slate-50"
                                         }`}
                                 >
-                                    {mode}
+                                    {t(mode)}
                                 </button>
                             ))}
                         </div>
                         <button className="flex items-center gap-2 h-10 px-4 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50">
                             <Download className="h-4 w-4" />
-                            Export
+                            {t("export")}
                         </button>
                         <button className="flex items-center gap-2 h-10 px-4 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
                             <Filter className="h-4 w-4" />
-                            Filters
+                            {t("filters")}
                         </button>
                     </div>
                 </div>
@@ -305,7 +285,7 @@ export default function SystemCalendar() {
                     {/* Calendar Grid */}
                     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                         <div className="grid grid-cols-7 border-b border-slate-200">
-                            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                            {[t("sun"), t("mon"), t("tue"), t("wed"), t("thu"), t("fri"), t("sat")].map((day) => (
                                 <div
                                     key={day}
                                     className="px-4 py-3 text-center text-sm font-semibold text-slate-600 border-r border-slate-100 last:border-r-0"
@@ -349,7 +329,7 @@ export default function SystemCalendar() {
                                                     })}
                                                     {dayActivities.length > 3 && (
                                                         <div className="text-[10px] text-slate-500 pl-2">
-                                                            +{dayActivities.length - 3} more
+                                                            +{dayActivities.length - 3} {t("more")}
                                                         </div>
                                                     )}
                                                 </div>
@@ -371,13 +351,12 @@ export default function SystemCalendar() {
                         </div>
                     </div>
 
-                    {/* Right Sidebar (Daily Summary & Timeline) */}
+                    {/* Right Sidebar */}
                     <div className="space-y-6">
-                        {/* Selected Date Header */}
                         <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
                             <div>
                                 <h3 className="font-semibold text-slate-900">
-                                    {selectedDate.toLocaleDateString("en-US", {
+                                    {selectedDate.toLocaleDateString(lang === "ar" ? "ar-EG" : lang === "fr" ? "fr-FR" : "en-US", {
                                         weekday: "long",
                                         month: "long",
                                         day: "numeric",
@@ -394,35 +373,33 @@ export default function SystemCalendar() {
                             </button>
                         </div>
 
-                        {/* Daily Summary */}
                         <div className="bg-white rounded-xl border border-slate-200 p-4">
-                            <h4 className="text-sm font-semibold text-slate-900 mb-3">Daily Summary</h4>
+                            <h4 className="text-sm font-semibold text-slate-900 mb-3">{t("daily_summary")}</h4>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 text-center">
                                     <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-                                    <div className="text-[10px] text-blue-700 mt-0.5">Total Events</div>
+                                    <div className="text-[10px] text-blue-700 mt-0.5">{t("total_events")}</div>
                                 </div>
                                 <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-3 text-center">
                                     <div className="text-2xl font-bold text-emerald-600">{stats.completed}</div>
-                                    <div className="text-[10px] text-emerald-700 mt-0.5">Completed</div>
+                                    <div className="text-[10px] text-emerald-700 mt-0.5">{t("completed")}</div>
                                 </div>
                                 <div className="rounded-lg bg-amber-50 border border-amber-100 p-3 text-center">
                                     <div className="text-2xl font-bold text-amber-600">{stats.inProgress}</div>
-                                    <div className="text-[10px] text-amber-700 mt-0.5">In Progress</div>
+                                    <div className="text-[10px] text-amber-700 mt-0.5">{t("in_progress")}</div>
                                 </div>
                                 <div className="rounded-lg bg-red-50 border border-red-100 p-3 text-center">
                                     <div className="text-2xl font-bold text-red-600">{stats.alerts}</div>
-                                    <div className="text-[10px] text-red-700 mt-0.5">Alerts</div>
+                                    <div className="text-[10px] text-red-700 mt-0.5">{t("alerts")}</div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Activity Timeline */}
                         <div className="bg-white rounded-xl border border-slate-200 p-4">
-                            <h4 className="text-sm font-semibold text-slate-900 mb-3">Activity Timeline</h4>
+                            <h4 className="text-sm font-semibold text-slate-900 mb-3">{t("activity_timeline")}</h4>
                             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                                 {selectedDateActivities.length === 0 ? (
-                                    <div className="text-center text-sm text-slate-500 py-8">No activities for this date.</div>
+                                    <div className="text-center text-sm text-slate-500 py-8">{t("no_activities_for_date")}</div>
                                 ) : (
                                     selectedDateActivities.map((act) => {
                                         const eventType = EVENT_TYPES[act.type] || { color: "bg-slate-100 text-slate-700 border-slate-200", icon: FileText, category: "system" };
@@ -445,7 +422,7 @@ export default function SystemCalendar() {
                                                     )}
                                                     {act.performedBy && (
                                                         <div className="text-xs text-slate-500 mt-0.5">
-                                                            by {act.performedBy}
+                                                            {t("by")} {act.performedBy}
                                                         </div>
                                                     )}
                                                     <div className={`text-[10px] mt-1.5 inline-block px-2 py-0.5 rounded-full ${category ? `bg-${category.color.split("-")[1]}-50 text-${category.color.split("-")[1]}-700` : "bg-slate-100 text-slate-700"
@@ -460,11 +437,10 @@ export default function SystemCalendar() {
                             </div>
                         </div>
 
-                        {/* Quick Filters */}
                         <div className="bg-white rounded-xl border border-slate-200 p-4">
-                            <h4 className="text-sm font-semibold text-slate-900 mb-3">Quick Filters</h4>
+                            <h4 className="text-sm font-semibold text-slate-900 mb-3">{t("quick_filters")}</h4>
                             <div className="grid grid-cols-2 gap-2">
-                                {["All Events", "Alerts", "Approvals", "Material", "Production", "Quality"].map((filter) => (
+                                {[t("all_events"), t("alerts"), t("approvals"), t("material"), t("production"), t("quality")].map((filter) => (
                                     <button
                                         key={filter}
                                         onClick={() => setActiveFilter(filter)}
@@ -479,7 +455,7 @@ export default function SystemCalendar() {
                             </div>
                             <button className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors">
                                 <FileText className="h-4 w-4" />
-                                View Traceability Report
+                                {t("view_traceability_report")}
                             </button>
                         </div>
                     </div>

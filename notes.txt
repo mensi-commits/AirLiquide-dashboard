@@ -1,9 +1,8 @@
-Team production can add meopa & air respirable directly.
+Team production can add meopa & air respirable directly.(done)
 
-citerne admin check not necessary.
+citerne admin check not necessary.(done)
 
-
-batch number only admin can change not all teams.
+batch number only admin can change not all teams. (done)
 
 date fabrication & expiray date : add.
 
@@ -11,7 +10,7 @@ link shipping with FP LAB.
 
 export google sheet.
 
-in users tab , admin handle password and credentials.
+in users tab , admin handle password and credentials. (done)
 
-settings , switch language , app name , logo .
+settings , switch language , app name , logo . (done)
 

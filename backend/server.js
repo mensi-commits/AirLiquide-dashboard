@@ -21,7 +21,7 @@ mongoose
   .catch((err) => console.error("❌ MongoDB Error:", err));
 
 // ==========================================
-// 2. DATABASE MODELS (UPDATED SCHEMA)
+// 2. DATABASE MODELS
 // ==========================================
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -38,13 +38,13 @@ const User = mongoose.model("User", UserSchema);
 const BatchSchema = new mongoose.Schema({
   lotId: { type: String, required: true, unique: true },
   gasId: { type: String, required: true },
-  type: { type: String, enum: ["RM", "FP", "CITERNE"], default: "RM" }, // NEW: Tracks Raw Material vs Final Product
+  type: { type: String, enum: ["RM", "FP", "CITERNE"], default: "RM" },
   party: { type: String, required: true },
   status: { type: String, required: true },
   quantity: String,
   supplier: String,
-  equipe: String, // NEW: Tracks production team
-  citerneType: String, // NEW: Tracks 3C, 4C, 7C for O2
+  equipe: String,
+  citerneType: String,
   client: { type: String, default: "Internal" },
   date: { type: Date, default: Date.now },
   labResults: { purity: Number, co: Number, co2: Number, h2o: Number },
@@ -58,8 +58,15 @@ const BatchSchema = new mongoose.Schema({
 });
 const Batch = mongoose.model("Batch", BatchSchema);
 
+// NEW: Settings Model for persistent platform configuration
+const SettingSchema = new mongoose.Schema({
+  key: { type: String, required: true, unique: true },
+  value: { type: mongoose.Schema.Types.Mixed, required: true },
+});
+const Setting = mongoose.model("Setting", SettingSchema);
+
 // ==========================================
-// 3. AUTO-SEED DEFAULT USERS
+// 3. AUTO-SEED DEFAULT USERS & SETTINGS
 // ==========================================
 const seedUsers = async () => {
   const count = await User.countDocuments();
@@ -90,11 +97,31 @@ const seedUsers = async () => {
         role: "production",
         fullName: "Production Team",
       },
+      {
+        username: "distribution",
+        password: hashedPass,
+        role: "distribution",
+        fullName: "Distribution Team",
+      },
     ]);
     console.log("🌱 Default users created! (Password for all is: 123456)");
   }
 };
+
+const seedSettings = async () => {
+  const count = await Setting.countDocuments();
+  if (count === 0) {
+    await Setting.insertMany([
+      { key: "language", value: "en" }, // Default language: English
+      { key: "companyName", value: "Air Liquide Medical" },
+      { key: "quarantineDays", value: 3 },
+    ]);
+    console.log("🌱 Default platform settings created!");
+  }
+};
+
 seedUsers();
+seedSettings();
 
 // ==========================================
 // 4. MIDDLEWARE
@@ -124,6 +151,8 @@ const authorize =
 // ==========================================
 // 5. API ROUTES
 // ==========================================
+
+// --- Auth ---
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -156,6 +185,7 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// --- Batches ---
 app.get("/api/batches", authenticate, async (req, res) => {
   try {
     const { gasId, party } = req.query;
@@ -175,12 +205,33 @@ app.post(
   authorize("admin", "logistics"),
   async (req, res) => {
     try {
+      let finalLotId = req.body.lotId;
+
+      // 🔒 BACKEND VALIDATION:
+      // If the user is NOT an admin, force auto-generation of the lotId.
+      // This prevents non-admins from submitting custom or malicious batch numbers via API.
+      if (req.user.role !== "admin") {
+        const date = new Date();
+        const yy = String(date.getFullYear()).slice(-2);
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        const seq = String(Math.floor(Math.random() * 90) + 10);
+
+        if (req.body.isCiterne && req.body.gasId === "O2") {
+          finalLotId = `${req.body.gasId}-${yy}-${mm}-${dd}-${req.body.citerneType || "3C"}-${seq}`;
+        } else {
+          finalLotId = `${req.body.gasId}-${yy}-${mm}-${dd}-${seq}`;
+        }
+      }
+
       const newBatch = new Batch({
         ...req.body,
+        lotId: finalLotId, // <-- Enforce the validated/generated lotId
         party: req.body.party || "logistics",
         status: req.body.status || "received",
         history: [{ action: "Created", performedBy: req.user.fullName }],
       });
+
       await newBatch.save();
       res.status(201).json(newBatch);
     } catch (err) {
@@ -189,7 +240,6 @@ app.post(
   },
 );
 
-// UPDATED: Move batch & apply any extra fields (like equipe, type)
 app.patch("/api/batches/:id/move", authenticate, async (req, res) => {
   try {
     const { nextParty, newStatus, ...updates } = req.body;
@@ -198,8 +248,6 @@ app.patch("/api/batches/:id/move", authenticate, async (req, res) => {
 
     if (nextParty) batch.party = nextParty;
     if (newStatus) batch.status = newStatus;
-
-    // Merge additional updates dynamically
     Object.assign(batch, updates);
 
     batch.history.push({
@@ -213,7 +261,6 @@ app.patch("/api/batches/:id/move", authenticate, async (req, res) => {
   }
 });
 
-// NEW: Produce FP Lot from RM Lot
 app.post(
   "/api/batches/produce",
   authenticate,
@@ -221,8 +268,8 @@ app.post(
   async (req, res) => {
     try {
       const { rmLotId, fpLotId, gasId, equipe, quantity } = req.body;
-
       const rmBatch = await Batch.findOne({ lotId: rmLotId });
+
       if (rmBatch) {
         rmBatch.status = "processed";
         rmBatch.history.push({
@@ -288,6 +335,7 @@ app.patch(
     try {
       const batch = await Batch.findOne({ lotId: req.params.id });
       if (!batch) return res.status(404).json({ error: "Batch not found" });
+
       batch.status = "rejected";
       batch.history.push({
         action: "Rejected and quarantined",
@@ -295,6 +343,88 @@ app.patch(
       });
       await batch.save();
       res.json(batch);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+);
+
+// --- Settings (NEW) ---
+app.get("/api/settings", authenticate, async (req, res) => {
+  try {
+    const settings = await Setting.find();
+    // Convert array of {key, value} to a simple object { key: value } for easy frontend consumption
+    const settingsObj = {};
+    settings.forEach((s) => {
+      settingsObj[s.key] = s.value;
+    });
+    res.json(settingsObj);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch(
+  "/api/settings",
+  authenticate,
+  authorize("admin"),
+  async (req, res) => {
+    try {
+      const updates = req.body;
+      // Loop through all provided keys and update them in the DB
+      for (const [key, value] of Object.entries(updates)) {
+        await Setting.findOneAndUpdate(
+          { key },
+          { value },
+          { upsert: true, new: true }, // Creates the setting if it doesn't exist yet
+        );
+      }
+      res.json({ message: "Settings updated successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+);
+
+// --- Users Management (Admin Only) ---
+app.get("/api/users", authenticate, authorize("admin"), async (req, res) => {
+  try {
+    // Fetch all users but exclude the password hash from the response
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch(
+  "/api/users/:id",
+  authenticate,
+  authorize("admin"),
+  async (req, res) => {
+    try {
+      const { password, fullName } = req.body;
+      const updateData = {};
+
+      if (fullName) updateData.fullName = fullName;
+      if (password) {
+        // Hash the new password before saving
+        updateData.password = await bcrypt.hash(password, 10);
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true },
+      ).select("-password");
+
+      if (!updatedUser)
+        return res.status(404).json({ error: "User not found" });
+
+      res.json(updatedUser);
+      console.log(
+        `✅ User ${updatedUser.username} updated by ${req.user.fullName}`,
+      );
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

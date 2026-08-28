@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
     Truck, Search, Bell, CheckCircle2, Users, Package, Droplets, Warehouse, ArrowRight
 } from "lucide-react";
+import { useLanguage } from "../../hooks/useLanguage"; // Adjust path if needed
 
 export default function DistributionDashboard() {
+    const { t, lang } = useLanguage();
     const navigate = useNavigate();
     const [batches, setBatches] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -77,21 +79,21 @@ export default function DistributionDashboard() {
             <div className="flex h-screen items-center justify-center bg-slate-50">
                 <div className="flex flex-col items-center gap-3 text-slate-500">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-                    <span className="text-sm font-medium">Loading distribution data...</span>
+                    <span className="text-sm font-medium">{t("loading_distribution_data")}</span>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50" dir={lang === "ar" ? "rtl" : "ltr"}>
             {/* Header */}
             <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-40">
                 <div className="flex items-center gap-3">
                     <img src="/air-liquide-logo.png" alt="Air Liquide Logo" className="h-14 w-14" />
                     <div>
-                        <h1 className="text-lg font-bold text-slate-900">Distribution & Shipping</h1>
-                        <p className="text-xs text-slate-500">Final Products & O₂ Citerne Dispatch</p>
+                        <h1 className="text-lg font-bold text-slate-900">{t("distribution_shipping")}</h1>
+                        <p className="text-xs text-slate-500">{t("final_products_o2_citerne_dispatch")}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -99,7 +101,7 @@ export default function DistributionDashboard() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search lot ID, gas..."
+                            placeholder={t("search_lot_id_gas")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="h-10 w-64 rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm focus:bg-white focus:border-blue-600 focus:outline-none"
@@ -110,8 +112,8 @@ export default function DistributionDashboard() {
                     </button>
                     <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
                         <div className="text-right">
-                            <div className="text-sm font-semibold text-slate-900">Distribution Team</div>
-                            <div className="text-xs text-slate-500">Logistics Manager</div>
+                            <div className="text-sm font-semibold text-slate-900">{t("distribution_team")}</div>
+                            <div className="text-xs text-slate-500">{t("logistics_manager")}</div>
                         </div>
                         <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 grid place-items-center font-bold">
                             DT
@@ -130,7 +132,7 @@ export default function DistributionDashboard() {
                             </div>
                             <div>
                                 <div className="text-2xl font-bold text-slate-900">{kpis.fpReady}</div>
-                                <div className="text-xs text-slate-600 mt-0.5">FP Ready to Ship</div>
+                                <div className="text-xs text-slate-600 mt-0.5">{t("fp_ready_to_ship")}</div>
                             </div>
                         </div>
                     </div>
@@ -141,7 +143,7 @@ export default function DistributionDashboard() {
                             </div>
                             <div>
                                 <div className="text-2xl font-bold text-slate-900">{kpis.citerneReady}</div>
-                                <div className="text-xs text-slate-600 mt-0.5">Citerne Ready</div>
+                                <div className="text-xs text-slate-600 mt-0.5">{t("citerne_ready")}</div>
                             </div>
                         </div>
                     </div>
@@ -152,7 +154,7 @@ export default function DistributionDashboard() {
                             </div>
                             <div>
                                 <div className="text-2xl font-bold text-slate-900">{kpis.totalBottles}</div>
-                                <div className="text-xs text-slate-600 mt-0.5">Total Bottles (FP)</div>
+                                <div className="text-xs text-slate-600 mt-0.5">{t("total_bottles_fp")}</div>
                             </div>
                         </div>
                     </div>
@@ -163,7 +165,7 @@ export default function DistributionDashboard() {
                             </div>
                             <div>
                                 <div className="text-2xl font-bold text-slate-900">{kpis.totalCiterneKg}</div>
-                                <div className="text-xs text-slate-600 mt-0.5">Total Citerne (kg)</div>
+                                <div className="text-xs text-slate-600 mt-0.5">{t("total_citerne_kg")}</div>
                             </div>
                         </div>
                     </div>
@@ -172,18 +174,20 @@ export default function DistributionDashboard() {
                 {/* Tabs */}
                 <div className="bg-white rounded-xl border border-slate-200 mb-4">
                     <div className="flex items-center gap-6 px-6 border-b border-slate-200">
-                        {["All", "Final Products (FP)", "O₂ Citernes"].map((tab) => (
+                        {[
+                            { key: "All", label: t("all") },
+                            { key: "FP", label: t("final_products_fp") },
+                            { key: "Citerne", label: t("o2_citernes") }
+                        ].map((tab) => (
                             <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab === "Final Products (FP)" ? "FP" : tab === "O₂ Citernes" ? "Citerne" : "All")}
-                                className={`py-3 text-sm font-medium border-b-2 transition-colors ${(activeTab === "All" && tab === "All") ||
-                                    (activeTab === "FP" && tab === "Final Products (FP)") ||
-                                    (activeTab === "Citerne" && tab === "O₂ Citernes")
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                className={`py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key
                                     ? "border-blue-600 text-blue-600"
                                     : "border-transparent text-slate-600 hover:text-slate-900"
                                     }`}
                             >
-                                {tab}
+                                {tab.label}
                             </button>
                         ))}
                     </div>
@@ -195,20 +199,20 @@ export default function DistributionDashboard() {
                         <table className="w-full text-left">
                             <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold">
                                 <tr>
-                                    <th className="px-6 py-4">Lot ID</th>
-                                    <th className="px-6 py-4">Gas Type</th>
-                                    <th className="px-6 py-4">Batch Type</th>
-                                    <th className="px-6 py-4">Equipe / Citerne</th>
-                                    <th className="px-6 py-4">Quantity</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4 text-right">Action</th>
+                                    <th className="px-6 py-4">{t("lot_id")}</th>
+                                    <th className="px-6 py-4">{t("gas_type")}</th>
+                                    <th className="px-6 py-4">{t("batch_type")}</th>
+                                    <th className="px-6 py-4">{t("equipe_citerne")}</th>
+                                    <th className="px-6 py-4">{t("quantity")}</th>
+                                    <th className="px-6 py-4">{t("status")}</th>
+                                    <th className="px-6 py-4 text-right">{t("action")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {filteredBatches.length === 0 ? (
                                     <tr>
                                         <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
-                                            No batches ready for distribution.
+                                            {t("no_batches_ready_for_distribution")}
                                         </td>
                                     </tr>
                                 ) : (
@@ -221,20 +225,20 @@ export default function DistributionDashboard() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-slate-700">
-                                                {batch.type === "FP" ? "Final Product" : "O₂ Citerne"}
+                                                {batch.type === "FP" ? t("final_product") : t("o2_citerne")}
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-slate-900">
                                                 {batch.type === "FP" ? batch.equipe : batch.citerneType}
                                             </td>
                                             <td className="px-6 py-4 font-medium text-slate-900">
-                                                {batch.quantity} {batch.type === "FP" ? "bottles" : "kg"}
+                                                {batch.quantity} {batch.type === "FP" ? t("bottles") : t("kg")}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${batch.status === "delivered"
                                                     ? "bg-slate-100 text-slate-700"
                                                     : "bg-emerald-50 text-emerald-700"
                                                     }`}>
-                                                    {batch.status === "delivered" ? "Delivered" : "Ready to Ship"}
+                                                    {batch.status === "delivered" ? t("delivered") : t("ready_to_ship")}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
@@ -243,7 +247,7 @@ export default function DistributionDashboard() {
                                                         onClick={() => dispatchBatch(batch.lotId)}
                                                         className="inline-flex items-center gap-2 rounded-lg bg-[#00205B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#001a4a]"
                                                     >
-                                                        Dispatch
+                                                        {t("dispatch")}
                                                         <Truck className="h-3 w-3" />
                                                     </button>
                                                 )}
